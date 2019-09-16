@@ -22,8 +22,9 @@ namespace tcp
 		{
             string CmdArgs = String.Concat(args);
 
-            
-            ClientSocket.Connect("10.0.0.1", PORT);
+            IPAddress IP = IPAddress.Parse(args[0]);
+            ClientSocket.Connect(IP, PORT);     //Connect to server, burde nok være i try
+
             NetworkStream  io = ClientSocket.GetStream();
 
             byte[] OutStream = System.Text.Encoding.ASCII.GetBytes($"{CmdArgs}");
@@ -48,7 +49,7 @@ namespace tcp
             byte[] inStream = new byte[BUFSIZE];
 
             io.Read(inStream, 0, BUFSIZE);
-
+            
             
 
         }

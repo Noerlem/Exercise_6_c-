@@ -1,6 +1,7 @@
 using System;
 using System.Text;
 using System.IO;
+using System.IO.Pipes;
 using System.Net;
 using System.Net.Sockets;
 
@@ -27,8 +28,9 @@ namespace tcp
 		/// Lukker socketen og programmet
  		/// </summary>
 		private file_server()
-		{
-            var Socket = new TcpListener(PORT);
+        {
+            IPAddress IP = IPAddress.Parse("10.0.0.1");
+            var Socket = new TcpListener(IP,PORT);
 
             TcpClient ClientSocket = default(TcpClient);
             Socket.Start();
@@ -47,16 +49,14 @@ namespace tcp
             dataFromClient = dataFromClient.Substring(0, dataFromClient.IndexOf("$"));
 
 
-
             //Find filstørrelse af requested fil og send filen over socket
-            var FileSize = new FileInfo("dataFromClient");
+            var FileSize = new FileInfo(dataFromClient);
+
             sendFile(dataFromClient, FileSize.Length, networkStream);             
             networkStream.Flush();
 
             ClientSocket.Close();
             Socket.Stop();
-
-
         }
 
 		/// <summary>
@@ -73,7 +73,11 @@ namespace tcp
 		/// </param>
 		private void sendFile (String fileName, long fileSize, NetworkStream io)
 		{
-            //TODO:: Send fil størrelse inden sendfile
+
+            //Send fil størrelse
+            Byte[] sendBytes = Encoding.ASCII.GetBytes(fileSize.ToString());
+            io.Write(sendBytes, 0, sendBytes.Length);
+
 
             int SendData = 0;
             int DataLeft = (int)fileSize;
@@ -83,11 +87,11 @@ namespace tcp
 
             byte[] buff = new byte[BUFSIZE];
 
-            while(SendData >= fileSize)
+            while (SendData >= fileSize)
             { 
                 if (DataLeft > BUFSIZE)
                 {
-                    fs.Write(buff, SendData, BUFSIZE);
+                    fs.Read(buff, SendData, BUFSIZE);
                     io.Write(buff, 0, (int)fileSize);
                     SendData += BUFSIZE;
                     DataLeft -= BUFSIZE;
@@ -95,7 +99,7 @@ namespace tcp
                 else
                 {
                     byte[] lastPacket = new byte[DataLeft];
-                    fs.Write(lastPacket, SendData, DataLeft);
+                    fs.Read(lastPacket, SendData, DataLeft);
                     io.Write(lastPacket, 0, (int)fileSize);   
                 }
             }
