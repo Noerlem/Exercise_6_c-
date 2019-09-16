@@ -45,11 +45,12 @@ namespace tcp
 		/// </param>
 		private void receiveFile (String fileName, NetworkStream io)
 		{
+
+            var fs = new FileStream(fileName, FileMode.OpenOrCreate);
+
             byte[] inStream = new byte[BUFSIZE];
 
             io.Read(inStream, 0, BUFSIZE);
-
-            
 
         }
 
