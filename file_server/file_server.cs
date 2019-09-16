@@ -84,7 +84,7 @@ namespace tcp
             byte[] buff = new byte[BUFSIZE];
 
             while(SendData >= fileSize)
-            {
+            { 
                 if (DataLeft > BUFSIZE)
                 {
                     fs.Write(buff, SendData, BUFSIZE);
