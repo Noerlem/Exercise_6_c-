@@ -41,19 +41,19 @@ namespace tcp
           
             NetworkStream networkStream = ClientSocket.GetStream();
 
-            byte[] bytesFrom = new byte[BUFSIZE];
+            string filepath = LIB.readTextTCP(networkStream); // modtager fil-sti
 
-            networkStream.Read(bytesFrom, 0, ClientSocket.ReceiveBufferSize);
+            long filesize = LIB.check_File_Exists(filepath); // checker fil
 
-            string dataFromClient = System.Text.Encoding.ASCII.GetString(bytesFrom);
-            dataFromClient = dataFromClient.Substring(0, dataFromClient.IndexOf("$"));
-
-
-            //Find filstørrelse af requested fil og send filen over socket
-            var FileSize = new FileInfo(dataFromClient);
-
-            sendFile(dataFromClient, FileSize.Length, networkStream);             
-            networkStream.Flush();
+            if (filesize!=0)
+            {
+                LIB.writeTextTCP(networkStream,filesize.ToString()); // sender filesize
+                sendFile(filepath,filesize,networkStream); // sender fil
+            }
+            else
+            {
+                LIB.writeTextTCP(networkStream,"Kan ikke finde fil");
+            }
 
             ClientSocket.Close();
             Socket.Stop();
@@ -75,9 +75,7 @@ namespace tcp
 		{
 
             //Send fil størrelse
-            Byte[] sendBytes = Encoding.ASCII.GetBytes(fileSize.ToString());
-            io.Write(sendBytes, 0, sendBytes.Length);
-
+            LIB.writeTextTCP(io,fileSize.ToString());
 
             int SendData = 0;
             int DataLeft = (int)fileSize;
@@ -100,7 +98,8 @@ namespace tcp
                 {
                     byte[] lastPacket = new byte[DataLeft];
                     fs.Read(lastPacket, SendData, DataLeft);
-                    io.Write(lastPacket, 0, (int)fileSize);   
+                    io.Write(lastPacket, 0, (int)fileSize);
+                    Console.WriteLine("Transfer complete");
                 }
             }
 		}
