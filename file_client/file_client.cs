@@ -6,8 +6,8 @@ using System.Net.Sockets;
 
 namespace tcp
 {
-	class file_client
-	{
+    class file_client
+    {
         const int PORT = 9000;
         const int BUFSIZE = 1000;
         private string filesize;
@@ -18,12 +18,12 @@ namespace tcp
         /// <param name='args'>
         /// The command-line arguments. First ip-adress of the server. Second the filename
         /// </param>
-        private file_client (string[] args)
-		{
+        private file_client(string[] args)
+        {
             ClientSocket.Connect(args[0], PORT);
-            NetworkStream  io = ClientSocket.GetStream();
+            NetworkStream io = ClientSocket.GetStream();
 
-            LIB.writeTextTCP(io,args[1]); // Sender fil-sti
+            LIB.writeTextTCP(io, args[1]); // Sender fil-sti
 
             filesize = LIB.readTextTCP(io); // Modtager filesize
 
@@ -33,24 +33,24 @@ namespace tcp
             }
             else
             {
-                receiveFile(LIB.extractFileName(args[1]),io);
+                receiveFile(LIB.extractFileName(args[1]), io);
                 Console.WriteLine($"Filessize is: {filesize}");
             }
         }
 
-		/// <summary>
-		/// Receives the file.
-		/// </summary>
-		/// <param name='fileName'>
-		/// File name.
-		/// </param>
-		/// <param name='io'>
-		/// Network stream for reading from the server
-		/// </param>
-		private void receiveFile (String fileName, NetworkStream io)
+        /// <summary>
+        /// Receives the file.
+        /// </summary>
+        /// <param name='fileName'>
+        /// File name.
+        /// </param>
+        /// <param name='io'>
+        /// Network stream for reading from the server
+        /// </param>
+        private void receiveFile(String fileName, NetworkStream io)
         {
 
-            var fs = new FileStream(fileName, FileMode.OpenOrCreate);
+            var fs = new FileStream($"/root/Client/{fileName}", FileMode.OpenOrCreate);
 
             byte[] inStream = new byte[BUFSIZE];
 
@@ -60,32 +60,27 @@ namespace tcp
 
             while (ReceivedData < size)
             {
-                if (DataLeft > BUFSIZE)
-                {
-                    io.Read(inStream, 0, BUFSIZE);
-                    fs.Write(inStream,ReceivedData,BUFSIZE);
-                    ReceivedData += BUFSIZE;
-                    DataLeft -= BUFSIZE;
-                }
-                else
-                {
-                    byte[] lastPacket = new byte[DataLeft];
-                    io.Read(inStream, 0, DataLeft);
-                    Console.WriteLine("Transfer Complete");
-                }
+                //if (DataLeft > BUFSIZE)
+                //{
+                int readBytes = io.Read(inStream, 0, BUFSIZE);
+                fs.Write(inStream, 0, readBytes);
+                ReceivedData += readBytes;
+                DataLeft -= readBytes;
+                //}
             }
+            LIB.extractFileName(fileName);
         }
 
-		/// <summary>
-		/// The entry point of the program, where the program control starts and ends.
-		/// </summary>
-		/// <param name='args'>
-		/// The command-line arguments.
-		/// </param>
-		public static void Main (string[] args)
-		{
-			Console.WriteLine ("Client starts...");
-			new file_client(args);
-		}
-	}
+        /// <summary>
+        /// The entry point of the program, where the program control starts and ends.
+        /// </summary>
+        /// <param name='args'>
+        /// The command-line arguments.
+        /// </param>
+        public static void Main(string[] args)
+        {
+            Console.WriteLine("Client starts...");
+            new file_client(args);
+        }
+    }
 }
