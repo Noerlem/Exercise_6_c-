@@ -12,6 +12,7 @@ namespace tcp
         const int BUFSIZE = 1000;
         private string filesize;
         private System.Net.Sockets.TcpClient ClientSocket = new System.Net.Sockets.TcpClient();
+
         /// <summary>
         /// Initializes a new instance of the <see cref="file_client"/> class.
         /// </summary>
@@ -29,7 +30,7 @@ namespace tcp
 
             if (filesize == "Kan ikke finde fil")
             {
-                Console.WriteLine("Hejhej fejl");
+                Console.WriteLine("File not Found ");
             }
             else
             {
@@ -49,9 +50,7 @@ namespace tcp
         /// </param>
         private void receiveFile(String fileName, NetworkStream io)
         {
-
             var fs = new FileStream($"/root/Client/{fileName}", FileMode.OpenOrCreate);
-
             byte[] inStream = new byte[BUFSIZE];
 
             int size = int.Parse(filesize);
@@ -60,13 +59,10 @@ namespace tcp
 
             while (ReceivedData < size)
             {
-                //if (DataLeft > BUFSIZE)
-                //{
                 int readBytes = io.Read(inStream, 0, BUFSIZE);
                 fs.Write(inStream, 0, readBytes);
                 ReceivedData += readBytes;
                 DataLeft -= readBytes;
-                //}
             }
             LIB.extractFileName(fileName);
         }

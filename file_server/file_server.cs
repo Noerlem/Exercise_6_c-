@@ -42,13 +42,9 @@ namespace tcp
                 ClientSocket = Socket.AcceptTcpClient();
                 Console.WriteLine("Client accepted");
 
-
                 NetworkStream networkStream = ClientSocket.GetStream();
-                Console.WriteLine("1");
 
                 string filepath = LIB.readTextTCP(networkStream); // modtager fil-sti
-                Console.WriteLine("2");
-
                 long filesize = LIB.check_File_Exists(filepath); // checker fil
 
                 if (filesize != 0)
@@ -60,11 +56,8 @@ namespace tcp
                 {
                     LIB.writeTextTCP(networkStream, "Kan ikke finde fil");
                 }
-
                 ClientSocket.Close();
             }
-
-            //Socket.Stop();
         }
 
         /// <summary>
@@ -81,18 +74,13 @@ namespace tcp
         /// </param>
         private void sendFile(String fileName, long fileSize, NetworkStream io)
         {
-
             int SendData = 0;
             int DataLeft = (int)fileSize;
-
-
             var fs = new FileStream(fileName, FileMode.Open);
-
             byte[] buff = new byte[BUFSIZE];
 
             while (SendData < fileSize)
             {
-
                 int readBytes = fs.Read(buff, 0, BUFSIZE);
                 io.Write(buff, 0, (int)readBytes);
                 SendData += readBytes;
