@@ -49,8 +49,10 @@ namespace tcp
 
                 if (filesize != 0)
                 {
+                    Console.WriteLine("Sending file");
                     LIB.writeTextTCP(networkStream, filesize.ToString()); // sender filesize
                     sendFile(filepath, filesize, networkStream); // sender fil
+                    Console.WriteLine("File sent!");
                 }
                 else
                 {

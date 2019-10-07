@@ -34,7 +34,9 @@ namespace tcp
             }
             else
             {
+                Console.WriteLine("Receiving file");
                 receiveFile(LIB.extractFileName(args[1]), io);
+                Console.WriteLine("File received");
                 Console.WriteLine($"Filessize is: {filesize}");
             }
         }
